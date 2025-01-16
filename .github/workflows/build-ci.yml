@@ -63,4 +63,5 @@ jobs:
 
       # The Dockerfile location since it's not in the root directory
       - name: Build Docker image
-        run: docker build -t whatsapp-clone:${{ github.sha }} .
+        run: docker build -t whatsapp-clone:${{ github.sha }} -f whatsappclone/Dockerfile .
+
