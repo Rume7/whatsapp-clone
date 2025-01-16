@@ -17,7 +17,6 @@ jobs:
     permissions:
       # required for all workflows
       security-events: write
-
       # required to fetch internal or private CodeQL packs
       packages: read
 
@@ -60,7 +59,9 @@ jobs:
           distribution: 'temurin'
 
       - name: Build backend
-        run: mvn clean package
+        run: mvn -f whatsappclone/pom.xml clean package
 
+      # Build Docker image
+      # Adjust the Dockerfile location since it's not in the root directory
       - name: Build Docker image
         run: docker build -t whatsapp-clone:${{ github.sha }} .
