@@ -1,0 +1,66 @@
+name: WhatsApp-Clone CI Pipeline
+
+on:
+  push:
+    branches:
+      - main          # Checks the main branch
+      - '**'          # Checks other branches
+  pull_request:
+    branches:
+      - main          # Checks PRs targeting the main branch
+      - '**'          # Checks PRs targeting any branch
+
+jobs:
+  analyze:
+    name: CodeQL ${{ matrix.language }} Analysis
+    runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
+    permissions:
+      # required for all workflows
+      security-events: write
+
+      # required to fetch internal or private CodeQL packs
+      packages: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: java
+            build-mode: none
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Initializes the CodeQL tools for scanning.
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{matrix.language}}"
+
+  build:
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Build backend
+        run: mvn clean package
+
+      - name: Build Docker image
+        run: docker build -t whatsapp-clone:${{ github.sha }} .
