@@ -61,7 +61,6 @@ jobs:
       - name: Build backend
         run: mvn -f whatsappclone/pom.xml clean package
 
-      # Build Docker image
-      # Adjust the Dockerfile location since it's not in the root directory
+      # The Dockerfile location since it's not in the root directory
       - name: Build Docker image
         run: docker build -t whatsapp-clone:${{ github.sha }} .
