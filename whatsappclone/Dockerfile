@@ -6,6 +6,7 @@ WORKDIR /app
 
 # Copy the Maven wrapper and pom.xml
 COPY whatsappclone/mvnw ./mvnw
+COPY whatsappclone/.mvn ./ ./mvn
 COPY whatsappclone/pom.xml ./pom.xml
 
 # Copy the rest of the project files
