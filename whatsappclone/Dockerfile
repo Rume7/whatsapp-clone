@@ -1,34 +1,28 @@
-# Use a base image with JDK 17
-FROM openjdk:17-jdk-slim as build
+# Use OpenJDK 17 for building the project
+FROM openjdk:17-jdk-slim AS build
 
-# Set the working directory inside the container
 WORKDIR /app
 
-# Copy the Maven wrapper and pom.xml
-COPY whatsappclone/mvnw ./mvnw
-COPY whatsappclone/.mvn ./ ./mvn
-COPY whatsappclone/pom.xml ./pom.xml
+# Install Maven
+RUN apt-get update && apt-get install -y maven
 
-# Copy the rest of the project files
+# Copy the pom.xml and source code
+COPY whatsappclone/pom.xml ./pom.xml
 COPY whatsappclone/src ./src
 
-# Give execution permission to the mvnw script
-RUN chmod +x mvnw
-
 # Build the project using Maven
-RUN ./mvnw clean package -DskipTests
+RUN mvn clean package -DskipTests
 
-# Create a runtime image with the Spring Boot JAR
+# Use the OpenJDK 17 runtime image for the final image
 FROM openjdk:17-jdk-slim
 
-# Set the working directory inside the container
 WORKDIR /app
 
-# Copy the JAR from the build stage
+# Copy the JAR file from the build stage
 COPY --from=build /app/target/*.jar app.jar
 
-# Expose the application port (if needed)
+# Expose the application port
 EXPOSE 8080
 
-# Command to run the Spring Boot application
+# Run the Spring Boot application
 ENTRYPOINT ["java", "-jar", "app.jar"]
